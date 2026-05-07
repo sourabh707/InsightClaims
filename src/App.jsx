@@ -19,9 +19,16 @@ export default function App() {
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
       <header className="bg-[#185FA5] text-white px-5 py-2.5 shadow-md flex items-center gap-4 flex-wrap">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-base font-bold leading-tight">InsightClaims</h1>
-          <span className="text-blue-200 text-xs">31 disease groups · 2,463 cities</span>
+        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          {/* Logo mark: shield + pulse */}
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+            <path d="M16 2L4 7v8c0 7 5.2 13.5 12 15 6.8-1.5 12-8 12-15V7L16 2z" fill="white" fillOpacity="0.15" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
+            <polyline points="7,16 10.5,16 12,11 14.5,21 17,13 19,18 21,18 24,16" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          </svg>
+          <div>
+            <h1 className="text-base font-bold leading-tight tracking-tight">InsightClaims</h1>
+            <span className="text-blue-200 text-xs">31 disease groups · 2,463 cities</span>
+          </div>
         </div>
 
         {/* Settled Date range */}
