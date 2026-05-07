@@ -176,30 +176,35 @@ const STATE_DISEASES = {
   ],
 };
 
-const MAX_CASES      = Math.max(...Object.values(STATE_DATA).map((s) => s.cases));
 const CITY_MAX_CASES = Math.max(...CITIES.map((c) => c.cases));
 const TOTAL_CASES    = 2765536;
 const TOTAL_AMOUNT   = 16674;
 
-// Cream → orange → dark-red heat scale
+// Bubble color: log scale → yellow → amber → orange → dark-red
+const LOG_MIN = Math.log(Math.min(...CITIES.map((c) => c.cases)));
+const LOG_MAX = Math.log(Math.max(...CITIES.map((c) => c.cases)));
+
+const COLOR_STOPS = [
+  [254, 240, 138], // light yellow
+  [251, 191,  36], // amber
+  [249, 115,  22], // orange
+  [153,  27,  27], // dark red
+];
+
+function bubbleColor(cases) {
+  const t = (Math.log(cases) - LOG_MIN) / (LOG_MAX - LOG_MIN);
+  const seg = Math.min(t, 0.999) * (COLOR_STOPS.length - 1);
+  const i   = Math.floor(seg);
+  const s   = seg - i;
+  const [r1, g1, b1] = COLOR_STOPS[i];
+  const [r2, g2, b2] = COLOR_STOPS[i + 1];
+  return `rgb(${Math.round(r1+(r2-r1)*s)},${Math.round(g1+(g2-g1)*s)},${Math.round(b1+(b2-b1)*s)})`;
+}
+
+// All states flat neutral — bubbles carry the data encoding
 function stateColor(stateName, isHov) {
-  const d = STATE_DATA[stateName];
-  if (!d) return isHov ? '#e5e7eb' : '#f3f4f6';
-  const t = d.cases / MAX_CASES;
-  let r, g, b;
-  if (t < 0.5) {
-    const s = t * 2;
-    r = Math.round(255 + (251 - 255) * s);
-    g = Math.round(251 + (146 - 251) * s);
-    b = Math.round(235 + (60  - 235) * s);
-  } else {
-    const s = (t - 0.5) * 2;
-    r = Math.round(251 + (153 - 251) * s);
-    g = Math.round(146 + (27  - 146) * s);
-    b = Math.round(60  + (27  - 60 ) * s);
-  }
-  const f = isHov ? 0.80 : 1;
-  return `rgb(${Math.round(r * f)},${Math.round(g * f)},${Math.round(b * f)})`;
+  if (!STATE_DATA[stateName]) return isHov ? '#d1d5db' : '#e2e8f0';
+  return isHov ? '#c7d2e8' : '#dde6f2';
 }
 
 function markerRadius(cases) {
@@ -209,11 +214,10 @@ function markerRadius(cases) {
 function fmt(n) { return n.toLocaleString('en-IN'); }
 
 const LEGEND = [
-  { label: 'Low',    color: 'rgb(255,245,210)' },
-  { label: '~10k',   color: 'rgb(254,215,150)' },
-  { label: '~50k',   color: 'rgb(251,165,80)'  },
-  { label: '~150k',  color: 'rgb(220,80,30)'   },
-  { label: '400k+',  color: 'rgb(153,27,27)'   },
+  { label: '<20k',   color: 'rgb(254,240,138)' },
+  { label: '50k',    color: 'rgb(251,191, 36)' },
+  { label: '100k',   color: 'rgb(249,115, 22)' },
+  { label: '250k+',  color: 'rgb(153, 27, 27)' },
 ];
 
 export default function MapView() {
@@ -260,17 +264,14 @@ export default function MapView() {
             <h2 className="text-sm font-semibold text-gray-800">India — Claims by State</h2>
             <p className="text-[10px] text-gray-400">Colour = claim volume · hover state or city for details</p>
           </div>
-          <div className="hidden sm:flex items-center gap-3">
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="text-[9px] text-gray-400 mr-1">City cases →</span>
             {LEGEND.map((l) => (
               <div key={l.label} className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded-sm border border-gray-200" style={{ background: l.color }} />
+                <div className="w-3 h-3 rounded-full border border-gray-300" style={{ background: l.color }} />
                 <span className="text-[9px] text-gray-500">{l.label}</span>
               </div>
             ))}
-            <div className="flex items-center gap-1 ml-1 pl-2 border-l border-gray-200">
-              <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-700" />
-              <span className="text-[9px] text-gray-500">City hub</span>
-            </div>
           </div>
         </div>
 
@@ -329,22 +330,23 @@ export default function MapView() {
                 const labelSize = 6 + (1 - (city.rank - 1) / 19) * 2;
                 return (
                   <Marker key={city.name} coordinates={[city.lng, city.lat]}>
-                    {/* Glow ring for hovered */}
+                    {/* Glow ring on hover */}
                     {isHov && (
                       <circle
-                        r={r + 4}
+                        r={r + 5}
                         fill="none"
-                        stroke="#F97316"
-                        strokeWidth={1.5}
-                        strokeOpacity={0.5}
+                        stroke={bubbleColor(city.cases)}
+                        strokeWidth={2}
+                        strokeOpacity={0.4}
                       />
                     )}
-                    {/* Main dot */}
+                    {/* Coloured bubble */}
                     <circle
                       r={r}
-                      fill="rgba(255,255,255,0.92)"
-                      stroke={isHov ? '#EA580C' : '#44403c'}
-                      strokeWidth={isHov ? 2 : 1}
+                      fill={bubbleColor(city.cases)}
+                      fillOpacity={0.88}
+                      stroke={isHov ? '#1F2937' : '#44403c'}
+                      strokeWidth={isHov ? 1.5 : 0.8}
                       style={{ cursor: 'pointer' }}
                       onMouseEnter={() => { setHoveredCity(city); setHovered(null); }}
                       onMouseLeave={() => setHoveredCity(null)}
