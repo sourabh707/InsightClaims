@@ -30,6 +30,13 @@ const TOP10_AMOUNT = [
   { name: 'Neuro', amount: 787 },
 ].reverse();
 
+// 10-color palette — ordered from muted (lowest bar) to vivid (highest bar)
+const PALETTE = [
+  '#818CF8', '#A78BFA', '#F472B6', '#FB7185',
+  '#FB923C', '#FBBF24', '#34D399', '#22D3EE',
+  '#60A5FA', '#185FA5',
+];
+
 const COLS = [
   { key: 'name', label: 'Disease' },
   { key: 'cases', label: 'Cases' },
@@ -98,7 +105,7 @@ export default function DiseaseView() {
               <Tooltip content={casesTooltip} />
               <Bar dataKey="cases" radius={[0, 4, 4, 0]}>
                 {TOP10_CASES.map((_, i) => (
-                  <Cell key={i} fill={i === TOP10_CASES.length - 1 ? '#185FA5' : '#93b8d8'} />
+                  <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
                 ))}
               </Bar>
             </BarChart>
@@ -116,7 +123,7 @@ export default function DiseaseView() {
               <Tooltip content={amtTooltip} />
               <Bar dataKey="amount" radius={[0, 4, 4, 0]}>
                 {TOP10_AMOUNT.map((_, i) => (
-                  <Cell key={i} fill={i === TOP10_AMOUNT.length - 1 ? '#185FA5' : '#93b8d8'} />
+                  <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
                 ))}
               </Bar>
             </BarChart>

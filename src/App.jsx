@@ -4,12 +4,11 @@ import MapView from './components/MapView';
 import DiseaseView from './components/DiseaseView';
 import AmountBands from './components/AmountBands';
 import Insights from './components/Insights';
-
 const TABS = [
-  { id: 'map', label: 'Map View' },
+  { id: 'map',     label: 'Map View' },
   { id: 'disease', label: 'Disease View' },
-  { id: 'bands', label: 'Amount Bands' },
-  { id: 'insights', label: 'Insights' },
+  { id: 'bands',   label: 'Amount Bands' },
+  { id: 'insights',label: 'Insights' },
 ];
 
 export default function App() {
@@ -77,10 +76,10 @@ export default function App() {
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'map' && <MapView />}
+      {activeTab === 'map'     && <MapView />}
       {activeTab === 'disease' && <DiseaseView />}
-      {activeTab === 'bands' && <AmountBands />}
-      {activeTab === 'insights' && <Insights />}
+      {activeTab === 'bands'   && <AmountBands />}
+      {activeTab === 'insights'&& <Insights />}
     </div>
   );
 }
